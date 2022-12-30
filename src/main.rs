@@ -1,8 +1,9 @@
-use std::{fs, process};
+use std::fs;
 
 use clap::Parser;
 
 mod day1;
+mod day2;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about=None)]
@@ -14,6 +15,8 @@ struct Args {
 }
 
 trait Solution {
+    fn new(content: String) -> Self;
+
     fn solve1(&self) -> String {
         "not yet implemented".into()
     }
@@ -21,25 +24,24 @@ trait Solution {
     fn solve2(&self) -> String {
         "not yet implemented".into()
     }
+
+    fn run_day(&self) {
+        println!(
+            "results of puzzle 1:\n{}\n\nresults of puzzle 2:\n{}",
+            self.solve1(),
+            self.solve2()
+        );
+    }
 }
 
 fn main() {
     let args = Args::parse();
     let content = fs::read_to_string(args.filename).unwrap();
-    let solution = match args.day {
-        1 => day1::Day1 { content },
-        26..=127 => {
-            println!("input day too large");
-            process::exit(1);
-        }
-        _ => {
-            println!("not yet implemented");
-            return;
-        }
-    };
-    println!(
-        "results of puzzle 1:\n{}\n\nresults of puzzle 2:\n{}",
-        solution.solve1(),
-        solution.solve2()
-    );
+    match args.day {
+        1 => day1::Day1::new(content).run_day(),
+        2 => day2::Day2::new(content).run_day(),
+        1..=25 => println!("not yet implemented (main)"),
+
+        _ => println!("day number too large"),
+    }
 }
