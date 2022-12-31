@@ -4,6 +4,7 @@ use clap::Parser;
 
 mod day1;
 mod day2;
+mod day3;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about=None)]
@@ -40,6 +41,7 @@ fn main() {
     match args.day {
         1 => day1::Day1::new(content).run_day(),
         2 => day2::Day2::new(content).run_day(),
+        3 => day3::Day3::new(content).run_day(),
         1..=25 => println!("not yet implemented (main)"),
 
         _ => println!("day number too large"),
