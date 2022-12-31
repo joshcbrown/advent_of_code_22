@@ -20,26 +20,37 @@ impl Valuable for Item {
 
 #[derive(PartialEq, Eq, Debug)]
 struct Rucksack {
-    compart1: Vec<Item>,
-    compart2: Vec<Item>,
+    items: Vec<Item>,
 }
 
 impl Rucksack {
     fn new(line: &str) -> Self {
-        let (a, b) = line.split_at(line.len() / 2);
         Self {
-            compart1: a.as_bytes().into(),
-            compart2: b.as_bytes().into(),
+            items: line.as_bytes().into(),
         }
     }
+
+    fn comparts(&self) -> (Vec<Item>, Vec<Item>) {
+        let (a, b) = self.items.split_at(self.items.len() / 2);
+        (a.into(), b.into())
+    }
+
     fn common(&self) -> u8 {
-        let compart1_items: HashSet<u8> = HashSet::from_iter(self.compart1.clone());
-        for c in &self.compart2 {
+        let (compart1, compart2) = self.comparts();
+        let compart1_items: HashSet<u8> = HashSet::from_iter(compart1.clone());
+        for c in &compart2 {
             if compart1_items.contains(c) {
                 return *c;
             }
         }
         panic!("no matching characters");
+    }
+
+    fn intersects(&self, other: &Self) -> Self {
+        let a: HashSet<Item> = HashSet::from_iter(self.items.clone());
+        let b: HashSet<Item> = HashSet::from_iter(other.items.clone());
+        let items: Vec<Item> = a.into_iter().filter(|item| b.contains(item)).collect();
+        Self { items }
     }
 }
 
@@ -60,6 +71,28 @@ impl Solution for Day3 {
             .sum::<i32>()
             .to_string()
     }
+
+    fn solve2(&self) -> String {
+        self.rucksacks
+            .chunks(3)
+            .map(|chunk| {
+                if let [a, b, c] = chunk {
+                    a.intersects(b).intersects(c)
+                } else {
+                    panic!("number of elves not a multiple of 3")
+                }
+            })
+            .map(|intersection| {
+                let potential_items = &intersection.items[..];
+                if let [i] = potential_items {
+                    (*i as u8).value()
+                } else {
+                    panic!("no common element among three elves")
+                }
+            })
+            .sum::<i32>()
+            .to_string()
+    }
 }
 
 #[cfg(test)]
@@ -69,11 +102,11 @@ mod tests {
     #[test]
     fn rucksack_new_splits_correctly() {
         let line = "vJrwpWtwJgWrhcsFMMfFFhFp";
-        let expected = Rucksack {
-            compart1: "vJrwpWtwJgWr".as_bytes().into(),
-            compart2: "hcsFMMfFFhFp".as_bytes().into(),
-        };
-        assert_eq!(expected, Rucksack::new(line));
+        let expected = (
+            "vJrwpWtwJgWr".as_bytes().into(),
+            "hcsFMMfFFhFp".as_bytes().into(),
+        );
+        assert_eq!(expected, Rucksack::new(line).comparts());
     }
 
     #[test]
