@@ -85,7 +85,7 @@ impl Solution for Day3 {
             .map(|intersection| {
                 let potential_items = &intersection.items[..];
                 if let [i] = potential_items {
-                    (*i as u8).value()
+                    (*i as Item).value()
                 } else {
                     panic!("no common element among three elves")
                 }
