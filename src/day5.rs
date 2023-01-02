@@ -11,16 +11,17 @@ struct Instruction {
 }
 
 impl Instruction {
-    fn from_language(line: &str) -> Self {
-        // this is wildly inefficient, but wanted to learn a bit of regex
-        // in rust so chose to do it this way
-        let re = Regex::new(r"move (?P<qty>\d+) from (?P<from>\d+) to (?P<to>\d+)").unwrap();
-        let cap = re.captures(line).unwrap();
-        Self {
-            from: cap["from"].parse().unwrap(),
-            to: cap["to"].parse().unwrap(),
-            qty: cap["qty"].parse().unwrap(),
-        }
+    fn vec_from_content(content: &str) -> Vec<Self> {
+        let mut result: Vec<Self> = Vec::with_capacity(content.lines().count());
+        let re = Regex::new(r"move (?P<qty>\d+) from (?P<from>\d+) to (?P<to>\d+)\n").unwrap();
+        re.captures_iter(content).for_each(|cap| {
+            result.push(Self {
+                from: cap["from"].parse().unwrap(),
+                to: cap["to"].parse().unwrap(),
+                qty: cap["qty"].parse().unwrap(),
+            })
+        });
+        result
     }
 }
 
@@ -54,11 +55,7 @@ impl Solution for Day5 {
             stack.reverse();
         }
 
-        let instructions: Vec<_> = instructions
-            .lines()
-            .map(|line| Instruction::from_language(line))
-            .collect();
-
+        let instructions: Vec<_> = Instruction::vec_from_content(instructions);
         Self {
             stacks,
             instructions,
