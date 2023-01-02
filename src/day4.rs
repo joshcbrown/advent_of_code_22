@@ -11,10 +11,12 @@ impl Assignment {
         let (start, end): (i32, i32) = (start.parse().unwrap(), end.parse().unwrap());
         Self { start, end }
     }
+
     fn overlaps_entirely(&self, other: &Self) -> bool {
         (self.start >= other.start && self.end <= other.end)
             || (self.start <= other.start && self.end >= other.end)
     }
+
     fn overlaps_at_all(&self, other: &Self) -> bool {
         self.start <= other.end && self.end >= other.start
     }
@@ -52,6 +54,7 @@ impl Solution for Day4 {
         self.solve(|pair| pair.elf1.overlaps_at_all(&pair.elf2))
     }
 }
+
 impl Day4 {
     fn solve<F>(&self, f: F) -> String
     where
