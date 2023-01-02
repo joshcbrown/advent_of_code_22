@@ -77,7 +77,7 @@ pub(crate) struct Day2 {
 impl Solution for Day2 {
     fn new(content: String) -> Self {
         Self {
-            games: content.lines().map(|line| Game::new(line)).collect(),
+            games: content.lines().map(Game::new).collect(),
         }
     }
 

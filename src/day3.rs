@@ -37,7 +37,7 @@ impl Rucksack {
 
     fn common(&self) -> u8 {
         let (compart1, compart2) = self.comparts();
-        let compart1_items: HashSet<u8> = HashSet::from_iter(compart1.clone());
+        let compart1_items: HashSet<u8> = HashSet::from_iter(compart1);
         for c in &compart2 {
             if compart1_items.contains(c) {
                 return *c;
@@ -60,7 +60,7 @@ pub(crate) struct Day3 {
 
 impl Solution for Day3 {
     fn new(content: String) -> Self {
-        let rucksacks = content.lines().map(|line| Rucksack::new(line)).collect();
+        let rucksacks = content.lines().map(Rucksack::new).collect();
         Self { rucksacks }
     }
 

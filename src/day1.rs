@@ -26,6 +26,6 @@ impl Solution for Day1 {
         let mut elf_cals = self.elf_cals.clone();
         elf_cals.sort_by(|a, b| b.cmp(a));
         // TODO: learn and implement partition algorithm for this
-        elf_cals[..3].into_iter().sum::<i32>().to_string()
+        elf_cals[..3].iter().sum::<i32>().to_string()
     }
 }

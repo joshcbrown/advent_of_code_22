@@ -7,7 +7,7 @@ struct Assignment {
 
 impl Assignment {
     fn new(s: &str) -> Self {
-        let (start, end) = s.split_once("-").unwrap();
+        let (start, end) = s.split_once('-').unwrap();
         let (start, end): (i32, i32) = (start.parse().unwrap(), end.parse().unwrap());
         Self { start, end }
     }
@@ -29,7 +29,7 @@ struct ElfPair {
 
 impl ElfPair {
     fn new(line: &str) -> Self {
-        let (elf1_str, elf2_str) = line.split_once(",").unwrap();
+        let (elf1_str, elf2_str) = line.split_once(',').unwrap();
         let (elf1, elf2) = (Assignment::new(elf1_str), Assignment::new(elf2_str));
         Self { elf1, elf2 }
     }
@@ -42,7 +42,7 @@ pub(crate) struct Day4 {
 impl Solution for Day4 {
     fn new(content: String) -> Self {
         Self {
-            pairings: content.lines().map(|line| ElfPair::new(line)).collect(),
+            pairings: content.lines().map(ElfPair::new).collect(),
         }
     }
 
