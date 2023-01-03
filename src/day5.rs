@@ -13,7 +13,7 @@ struct Instruction {
 impl Instruction {
     fn vec_from_content(content: &str) -> Vec<Self> {
         let mut result: Vec<Self> = Vec::with_capacity(content.lines().count());
-        let re = Regex::new(r"move (?P<qty>\d+) from (?P<from>\d+) to (?P<to>\d+)\n").unwrap();
+        let re = Regex::new(r"move (?P<qty>\d+) from (?P<from>\d+) to (?P<to>\d+)").unwrap();
         re.captures_iter(content).for_each(|cap| {
             result.push(Self {
                 from: cap["from"].parse().unwrap(),
@@ -90,6 +90,7 @@ impl Day5 {
         self.instructions
             .iter()
             .for_each(|instruction| f(instruction, &mut stacks));
+        println!("{:#?}", stacks);
         stacks
             .into_iter()
             .map(|mut stack| stack.pop().unwrap())
