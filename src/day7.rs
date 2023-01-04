@@ -37,6 +37,7 @@ impl Directory {
     fn direct_size(&self) -> u32 {
         self.files.iter().map(|file| file.size).sum()
     }
+
     fn size(&self) -> u32 {
         let direct_size: u32 = self.direct_size();
         let indirect_size: u32 = self
@@ -81,23 +82,16 @@ impl Directory {
         let mut size = if direct_size < n {
             Some(direct_size)
         } else {
-            println!(
-                "{} too large directly ({}), not counting",
-                self.name, direct_size
-            );
             None
         }?;
         for (_, child) in &self.children {
             let child_size = child.borrow().size_less_than(n);
-            println!("size of {}: {:#?}", self.name, child_size);
             match child_size {
                 Some(m) => size += m,
                 None => return None,
             }
         }
-        println!("total size of {}: {size}", self.name);
         if size < n {
-            println!("accepting\n");
             Some(size)
         } else {
             None
@@ -107,6 +101,33 @@ impl Directory {
 
 pub(crate) struct Day7 {
     root: Rc<RefCell<Directory>>,
+}
+
+impl Day7 {
+    fn handle_ls(command: &str, current: &mut Rc<RefCell<Directory>>) {
+        let (_, output) = command.split_once('\n').unwrap();
+        current.borrow_mut().add_files(output);
+    }
+
+    fn handle_cd(
+        command: &str,
+        current: Rc<RefCell<Directory>>,
+        root: &Rc<RefCell<Directory>>,
+    ) -> Rc<RefCell<Directory>> {
+        let mut lines = command.lines();
+        let dir_name = &lines.next().unwrap()[3..];
+        match dir_name {
+            ".." => Rc::clone(current.borrow().parent.as_ref().unwrap()),
+            "/" => Rc::clone(root),
+            _ => {
+                if !current.borrow().children.contains_key(dir_name) {
+                    Directory::add_child_to_parent(current, dir_name.to_string())
+                } else {
+                    Rc::clone(&current.borrow().children[dir_name])
+                }
+            }
+        }
+    }
 }
 
 impl Solution for Day7 {
@@ -120,42 +141,17 @@ impl Solution for Day7 {
         };
         let root = Rc::new(RefCell::new(root));
         let mut current = Rc::clone(&root);
-        let mut tmp: Rc<RefCell<Directory>>;
         for command in commands {
             match &command[0..2] {
                 "ls" => {
-                    let (_, output) = command.split_once('\n').unwrap();
-                    current.borrow_mut().add_files(output);
-                    println!("ls output: {:?}\n", output);
+                    Day7::handle_ls(command, &mut current);
                 }
-                "cd" => {
-                    let mut lines = command.lines();
-                    let dir_name = &lines.next().unwrap()[3..];
-                    match dir_name {
-                        ".." => {
-                            tmp = Rc::clone(current.borrow().parent.as_ref().unwrap());
-                            current = tmp;
-                        }
-                        "/" => current = Rc::clone(&root),
-                        _ => {
-                            if !current.borrow().children.contains_key(dir_name) {
-                                current =
-                                    Directory::add_child_to_parent(current, dir_name.to_string());
-                            } else {
-                                tmp = Rc::clone(&current.borrow().children[dir_name]);
-                                current = tmp
-                            }
-                        }
-                    }
-                    println!("cd name: {dir_name}\n");
-                }
+                "cd" => current = Day7::handle_cd(command, current, &root),
                 _ => {
                     panic!("invalid command: {command}")
                 }
             }
-            println!("{}", current.borrow().name);
         }
-        // println!("{}", root.borrow().to_string());
         Self { root }
     }
     fn solve1(&self) -> String {
