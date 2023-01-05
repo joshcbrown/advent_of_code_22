@@ -18,34 +18,20 @@ impl Solution for Day8 {
             .lines()
             .map(|line| line.as_bytes().to_vec())
             .collect();
-        println!("{:#?}", lines);
         let n_rows = lines.len();
         let n_cols = lines[0].len();
+
         for (i, line) in lines.iter().enumerate() {
             visible.push(repeat(false).take(line.len()).collect());
-            do_the_thing(&mut visible[i], line.iter(), false);
-            do_the_thing(&mut visible[i], line.iter().rev(), true);
+            fill_horizontal(&mut visible[i], line.iter(), false);
+            fill_horizontal(&mut visible[i], line.iter().rev(), true);
         }
 
         for j in 0..n_cols {
-            let mut max_so_far = b'0' - 1;
-
-            for i in 0..n_rows {
-                if lines[i][j] > max_so_far {
-                    max_so_far = lines[i][j];
-                    visible[i][j] = true;
-                }
-            }
-            max_so_far = b'0' - 1;
-            for i in (0..n_rows).rev() {
-                println!("{i}: {}", lines[i][0]);
-                if lines[i][j] > max_so_far {
-                    max_so_far = lines[i][j];
-                    visible[i][j] = true;
-                }
-            }
+            fill_vertical(&mut visible, &lines, j, n_rows, false);
+            fill_vertical(&mut visible, &lines, j, n_rows, true);
         }
-        println!("{:#?}", visible);
+
         visible
             .concat()
             .iter()
@@ -55,7 +41,29 @@ impl Solution for Day8 {
     }
 }
 
-fn do_the_thing<'a, I>(vec: &mut Vec<bool>, line: I, reverse: bool)
+fn fill_vertical(
+    vec: &mut Vec<Vec<bool>>,
+    lines: &Vec<Vec<u8>>,
+    j: usize,
+    n_rows: usize,
+    reverse: bool,
+) {
+    let mut max_so_far = b'0' - 1;
+
+    for i in 0..n_rows {
+        let (comp, to_change) = if reverse {
+            (lines[i][j], &mut vec[i][j])
+        } else {
+            (lines[n_rows - i][j], &mut vec[i][j])
+        };
+        if comp > max_so_far {
+            max_so_far = comp;
+            *to_change = true;
+        }
+    }
+}
+
+fn fill_horizontal<'a, I>(vec: &mut Vec<bool>, line: I, reverse: bool)
 where
     I: ExactSizeIterator<Item = &'a u8>,
 {
