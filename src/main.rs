@@ -9,6 +9,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about=None)]
@@ -50,7 +51,8 @@ fn main() {
         5 => day5::Day5::new(content).run_day(),
         6 => day6::Day6::new(content).run_day(),
         7 => day7::Day7::new(content).run_day(),
-        8..=25 => println!("not yet implemented (main)"),
+        8 => day8::Day8::new(content).run_day(),
+        9..=25 => println!("not yet implemented (main)"),
 
         _ => println!("day number too large"),
     }

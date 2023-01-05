@@ -65,10 +65,10 @@ impl Directory {
     }
 
     // insanely inefficient
-    fn whole_size_less_than(&self, n: u32) -> u32 {
+    fn cum_size_less_than(&self, n: u32) -> u32 {
         let mut size = self.size_less_than(n).unwrap_or(0);
         for (_, child) in &self.children {
-            size += child.borrow().whole_size_less_than(n)
+            size += child.borrow().cum_size_less_than(n)
         }
         size
     }
@@ -173,7 +173,7 @@ impl Solution for Day7 {
     fn solve1(&self) -> String {
         self.root
             .borrow()
-            .whole_size_less_than(LARGEST_SIZE)
+            .cum_size_less_than(LARGEST_SIZE)
             .to_string()
     }
 
