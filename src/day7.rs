@@ -2,7 +2,6 @@ use crate::Solution;
 use regex::Regex;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::fmt::Display;
 use std::rc::Rc;
 
 #[derive(PartialEq, Eq, Debug, Hash)]
@@ -67,16 +66,14 @@ impl Directory {
 
     // insanely inefficient
     fn whole_size_less_than(&self, n: u32) -> u32 {
-        let mut size = match self.size_less_than(n) {
-            Some(s) => s,
-            None => 0,
-        };
+        let mut size = self.size_less_than(n).unwrap_or(0);
         for (_, child) in &self.children {
             size += child.borrow().whole_size_less_than(n)
         }
         size
     }
 
+    // good candidate for monadic stuff
     fn size_less_than(&self, n: u32) -> Option<u32> {
         let direct_size: u32 = self.files.iter().map(|file| file.size).sum();
         let mut size = if direct_size < n {
@@ -96,6 +93,20 @@ impl Directory {
         } else {
             None
         }
+    }
+
+    // not super general, wanted to make this accept a closure and work like a filter
+    // but ran into recursion problems
+    fn dirs_bigger_than(source_dir: Rc<RefCell<Self>>, n: u32) -> Vec<Rc<RefCell<Self>>> {
+        let mut self_vec = if source_dir.borrow().size() > n {
+            vec![Rc::clone(&source_dir)]
+        } else {
+            vec![]
+        };
+        for (_, child) in &source_dir.borrow().children {
+            self_vec.append(&mut Directory::dirs_bigger_than(Rc::clone(&child), n));
+        }
+        self_vec
     }
 }
 
@@ -130,6 +141,10 @@ impl Day7 {
     }
 }
 
+const LARGEST_SIZE: u32 = 100_000;
+const REQUIRED_SPACE: u32 = 30_000_000;
+const TOTAL_SPACE: u32 = 70_000_000;
+
 impl Solution for Day7 {
     fn new(content: String) -> Self {
         let commands: Vec<_> = content.split("$ ").skip(1).map(str::trim).collect();
@@ -154,7 +169,28 @@ impl Solution for Day7 {
         }
         Self { root }
     }
+
     fn solve1(&self) -> String {
-        self.root.borrow().whole_size_less_than(100_000).to_string()
+        self.root
+            .borrow()
+            .whole_size_less_than(LARGEST_SIZE)
+            .to_string()
+    }
+
+    fn solve2(&self) -> String {
+        let used_space = self.root.borrow().size();
+        println!("{}", used_space);
+        let required_to_delete = REQUIRED_SPACE - (TOTAL_SPACE - used_space);
+
+        let potential_deletions =
+            Directory::dirs_bigger_than(Rc::clone(&self.root), required_to_delete);
+
+        let mut sizes: Vec<u32> = potential_deletions
+            .iter()
+            .map(|dir| dir.borrow().size())
+            .collect();
+        sizes.sort();
+
+        sizes[0].to_string()
     }
 }
