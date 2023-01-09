@@ -10,6 +10,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about=None)]
@@ -52,7 +53,8 @@ fn main() {
         6 => day6::Day6::new(content).run_day(),
         7 => day7::Day7::new(content).run_day(),
         8 => day8::Day8::new(content).run_day(),
-        9..=25 => todo!("haven't added functionality for this day yet"),
+        9 => day9::Day9::new(content).run_day(),
+        10..=25 => todo!("haven't added functionality for this day"),
         _ => println!("day number too large"),
     }
 }
