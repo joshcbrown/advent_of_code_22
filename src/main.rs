@@ -52,8 +52,7 @@ fn main() {
         6 => day6::Day6::new(content).run_day(),
         7 => day7::Day7::new(content).run_day(),
         8 => day8::Day8::new(content).run_day(),
-        9..=25 => println!("not yet implemented (main)"),
-
+        9..=25 => todo!("haven't added functionality for this day yet"),
         _ => println!("day number too large"),
     }
 }
